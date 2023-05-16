@@ -4,36 +4,14 @@ query Input {
       quantity
       merchandise {
         __typename
-        ... on ProductVariant {
-          id
-          sku
-          weight
-          product {
+        ...on ProductVariant {
             id
-          }
         }
-      }
-    }
-    buyerIdentity {
-      email
-      customer {
-        amountSpent {
-          amount
-        }
-        isVip: hasAnyTag(tags: ["VIP"])
-      }
-    }
-    cost {
-      subtotalAmount {
-        amount
-      }
-      totalAmount {
-        amount
       }
     }
   }
   discountNode {
-    metafield(namespace: "my-app", key: "function-config") {
+    metafield(namespace: "volume-discount", key: "function-configuration"){
       value
     }
   }
