@@ -8,6 +8,36 @@ import shopify from "./shopify.js";
 import productCreator from "./product-creator.js";
 import GDPRWebhookHandlers from "./gdpr.js";
 
+import { GraphqlQueryError } from '@shopify/shopify-api';
+
+
+const CREATE_CODE_MUTATION = `
+  mutation CreateCodeDiscount($discount: DiscountCodeAppInput!) {
+    discountCreate: discountCodeAppCreate(codeAppDiscount: $discount) {
+      userErrors {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+const CREATE_AUTOMATIC_MUTATION = `
+  mutation CreateAutomaticDiscount($discount: DiscountAutomaticAppInput!) {
+    discountCreate: discountAutomaticAppCreate(
+      automaticAppDiscount: $discount
+    ) {
+      userErrors {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+
 const PORT = parseInt(process.env.BACKEND_PORT || process.env.PORT, 10);
 
 const STATIC_PATH =
@@ -16,6 +46,17 @@ const STATIC_PATH =
     : `${process.cwd()}/frontend/`;
 
 const app = express();
+
+// Endpoint to create code-based discounts
+app.post("/api/discounts/code", async (req, res) => {
+	await runDiscountMutation(req, res, CREATE_CODE_MUTATION);
+  });
+  
+  // Endpoint to create automatic discounts
+  app.post("/api/discounts/automatic", async (req, res) => {
+	await runDiscountMutation(req, res, CREATE_AUTOMATIC_MUTATION);
+  });
+  
 
 // Set up Shopify authentication and webhook handling
 app.get(shopify.config.auth.path, shopify.auth.begin());
@@ -33,6 +74,32 @@ app.post(
 app.use("/api/*", shopify.validateAuthenticatedSession());
 
 app.use(express.json());
+
+
+const runDiscountMutation = async (req, res, mutation) => {
+	const graphqlClient = new shopify.api.clients.Graphql({
+	  session: res.locals.shopify.session
+	});
+  
+	try {
+	  const data = await graphqlClient.query({
+		data: {
+		  query: mutation,
+		  variables: req.body,
+		},
+	  });
+  
+	  res.send(data.body);
+	} catch (error) {
+	  // Handle errors thrown by the GraphQL client
+	  if (!(error instanceof GraphqlQueryError)) {
+		throw error;
+	  }
+	  return res.status(500).send({ error: error.response });
+	}
+  };
+  
+
 
 app.get("/api/products/count", async (_req, res) => {
   const countData = await shopify.api.rest.Product.count({
