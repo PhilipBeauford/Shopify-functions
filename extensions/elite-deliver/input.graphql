@@ -1,0 +1,13 @@
+query Input {
+    customer {
+        elite: hasAnyTag(tags: ["elite"])
+    }
+
+    deliveryGroups {
+      id
+      deliveryOptions {
+        handle
+        title
+      }
+    }
+}
