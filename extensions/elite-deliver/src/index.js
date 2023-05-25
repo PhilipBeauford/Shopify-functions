@@ -1,25 +1,54 @@
 // @ts-check
 
+// Use JSDoc annotations for type safety
 /**
- * @typedef {import("../generated/api").InputQuery} InputQuery
- * @typedef {import("../generated/api").FunctionResult} FunctionResult
- */
+* @typedef {import("../generated/api").InputQuery} InputQuery
+* @typedef {import("../generated/api").FunctionResult} FunctionResult
+* @typedef {import("../generated/api").Operation} Operation
+*/
 
+// The @shopify/shopify_function package will use the default export as your function entrypoint
+export default 
 /**
- * @type {FunctionResult}
- */
-const NO_CHANGES = {
-  operations: [],
-};
+* @param {InputQuery} input
+* @returns {FunctionResult}
+*/
+  (input) => {
+	  
+	if(input.cart.buyerIdentity?.customer.tagged == true ) {
+		const bopisOption = input.cart.deliveryGroups
+        .flatMap((group) => group.deliveryOptions)
+        .find((option) => option.title === "Pickup In-Store");
 
-export default /**
- * @param {InputQuery} input
- * @returns {FunctionResult}
- */
-(input) => {
-  const configuration = JSON.parse(
-    input?.deliveryCustomization?.metafield?.value ?? "{}"
-  );
+		const standardOption = input.cart.deliveryGroups
+        .flatMap((group) => group.deliveryOptions)
+        .find((option) => option.title === "Standard");
+		
+		const expressOption = input.cart.deliveryGroups
+        .flatMap((group) => group.deliveryOptions)
+        .find((option) => option.title === "Express");
 
-  return NO_CHANGES;
-};
+
+			return {
+			  operations: [
+				/** @type {Operation} */ ({
+				  hide: {
+					deliveryOptionHandle: bopisOption.handle,
+				  },
+				}),
+				/** @type {Operation} */ ({
+					hide: {
+						deliveryOptionHandle: standardOption.handle,
+					},
+				}),
+				/** @type {Operation} */ ({
+					hide: {
+						deliveryOptionHandle: expressOption.handle,
+					},
+				}),
+			  ],
+			};
+
+	};
+
+  };

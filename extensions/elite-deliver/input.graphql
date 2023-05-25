@@ -1,8 +1,11 @@
 query Input {
-    customer {
-        elite: hasAnyTag(tags: ["elite"])
+  cart {
+    buyerIdentity {
+        customer {
+            id
+            tagged: hasAnyTag(tags: ["elite"])
+        }
     }
-
     deliveryGroups {
       id
       deliveryOptions {
@@ -10,4 +13,5 @@ query Input {
         title
       }
     }
+  }
 }
