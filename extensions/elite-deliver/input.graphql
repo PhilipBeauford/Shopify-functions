@@ -8,9 +8,15 @@ query Input {
     }
     deliveryGroups {
       id
+      deliveryAddress {
+        provinceCode
+      }
       deliveryOptions {
         handle
         title
+        cost {
+            amount
+        }
       }
     }
   }
