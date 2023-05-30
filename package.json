@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@shopify/app": "^3.46.0-pre.3",
+    "@shopify/checkout-ui-extensions-react": "^0.26.2",
     "@shopify/cli": "^3.46.0-pre.3",
     "@shopify/shopify_function": "^0.0.3",
     "javy": "^0.0.3"
